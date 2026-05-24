@@ -2,38 +2,40 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
 
-  const products = [
+  return NextResponse.json([
     {
       id: 1,
       product: "iPhone 15",
       warehouse: "Chennai",
       available: 10,
     },
+
     {
       id: 2,
-      product: "Samsung S24",
+      product: "Samsung Galaxy S24",
       warehouse: "Bangalore",
       available: 8,
     },
+
     {
       id: 3,
       product: "MacBook Air M3",
       warehouse: "Mumbai",
       available: 5,
     },
+
     {
       id: 4,
-      product: "Sony Headphones",
+      product: "Sony WH-1000XM5",
       warehouse: "Delhi",
-      available: 15,
+      available: 12,
     },
+
     {
       id: 5,
       product: "iPad Pro",
       warehouse: "Hyderabad",
-      available: 6,
-    },
-  ];
-
-  return NextResponse.json(products);
+      available: 7,
+    }
+  ]);
 }
