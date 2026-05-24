@@ -1,53 +1,39 @@
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function GET() {
 
-  try {
+  const products = [
+    {
+      id: 1,
+      product: "iPhone 15",
+      warehouse: "Chennai",
+      available: 10,
+    },
+    {
+      id: 2,
+      product: "Samsung S24",
+      warehouse: "Bangalore",
+      available: 8,
+    },
+    {
+      id: 3,
+      product: "MacBook Air M3",
+      warehouse: "Mumbai",
+      available: 5,
+    },
+    {
+      id: 4,
+      product: "Sony Headphones",
+      warehouse: "Delhi",
+      available: 15,
+    },
+    {
+      id: 5,
+      product: "iPad Pro",
+      warehouse: "Hyderabad",
+      available: 6,
+    },
+  ];
 
-    const inventories =
-      await prisma.inventory.findMany({
-        include: {
-          product: true,
-          warehouse: true,
-        },
-      });
-
-    const formatted =
-      inventories.map((item) => ({
-
-        inventoryId: item.id,
-
-        productId:
-          item.productId,
-
-        warehouseId:
-          item.warehouseId,
-
-        product:
-          item.product.name,
-
-        warehouse:
-          item.warehouse.name,
-
-        available:
-          item.totalStock -
-          item.reservedStock,
-      }));
-
-    return Response.json(formatted);
-
-  } catch (error) {
-
-    console.log(error);
-
-    return Response.json(
-      {
-        message:
-          "Error fetching products",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+  return NextResponse.json(products);
 }
