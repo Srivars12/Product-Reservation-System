@@ -1,59 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
 
-  const [products, setProducts] =
-    useState<any[]>([]);
+  const router = useRouter();
 
-  const [message, setMessage] =
-    useState("");
+  const products = [
+    {
+      id: 1,
+      product: "iPhone 15",
+      warehouse: "Chennai",
+      available: 10,
+    },
 
-  useEffect(() => {
+    {
+      id: 2,
+      product: "Samsung S24",
+      warehouse: "Bangalore",
+      available: 8,
+    },
 
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((data) => {
+    {
+      id: 3,
+      product: "MacBook Air M3",
+      warehouse: "Mumbai",
+      available: 5,
+    },
 
-        setProducts(data);
-      });
+    {
+      id: 4,
+      product: "Sony Headphones",
+      warehouse: "Delhi",
+      available: 12,
+    },
 
-  }, []);
+    {
+      id: 5,
+      product: "iPad Pro",
+      warehouse: "Hyderabad",
+      available: 6,
+    },
+  ];
 
-  async function reserve(item: any) {
-
-    const res = await fetch(
-      "/api/reservations",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          productId: item.productId,
-          warehouseId: item.warehouseId,
-          quantity: 1,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.status === 409) {
-
-      setMessage(
-        "Stock unavailable"
-      );
-
-      return;
-    }
-
-    window.location.href =
-      `/checkout/${data.id}`;
+  function reserveProduct(id: number) {
+    router.push(`/checkout/${id}`);
   }
 
   return (
@@ -61,246 +52,100 @@ export default function HomePage() {
     <div
       style={{
         minHeight: "100vh",
-        background:
-          "linear-gradient(to right, #dbeafe, #f1f5f9)",
+        background: "#f3f4f6",
         padding: "40px",
-        fontFamily: "Arial",
       }}
     >
 
+      <h1
+        style={{
+          textAlign: "center",
+          fontSize: "52px",
+          fontWeight: "bold",
+          marginBottom: "10px",
+          color: "#111827",
+        }}
+      >
+        Inventory Reservation
+      </h1>
+
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "22px",
+          marginBottom: "50px",
+          color: "#4b5563",
+        }}
+      >
+        Real-Time Product Reservation System
+      </p>
+
       <div
         style={{
-          maxWidth: "1400px",
-          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "30px",
         }}
       >
 
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: "50px",
-          }}
-        >
-
-          <h1
-            style={{
-              fontSize: "70px",
-              fontWeight: "900",
-              color: "#1e293b",
-              marginBottom: "10px",
-            }}
-          >
-
-            Inventory Reservation
-
-          </h1>
-
-          <p
-            style={{
-              fontSize: "24px",
-              color: "#475569",
-            }}
-          >
-
-            Real-Time Product Reservation System
-
-          </p>
-
-        </div>
-
-        {message && (
+        {products.map((item) => (
 
           <div
+            key={item.id}
             style={{
-              background: "#fee2e2",
-              color: "#dc2626",
-              padding: "15px",
-              borderRadius: "15px",
-              marginBottom: "30px",
-              textAlign: "center",
-              fontWeight: "bold",
+              background: "white",
+              borderRadius: "20px",
+              padding: "30px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
             }}
           >
 
-            {message}
-
-          </div>
-        )}
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "30px",
-          }}
-        >
-
-          {products.map((item) => (
-
-            <div
-              key={item.inventoryId}
-
+            <h2
               style={{
-                background: "white",
-                borderRadius: "30px",
-                padding: "30px",
-                boxShadow:
-                  "0 10px 30px rgba(0,0,0,0.1)",
-                transition: "0.3s",
+                fontSize: "28px",
+                marginBottom: "15px",
+                color: "#111827",
               }}
             >
+              {item.product}
+            </h2>
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent:
-                    "space-between",
-                  alignItems: "center",
-                  marginBottom: "25px",
-                }}
-              >
+            <p
+              style={{
+                fontSize: "18px",
+                marginBottom: "10px",
+              }}
+            >
+              Warehouse: {item.warehouse}
+            </p>
 
-                <div>
+            <p
+              style={{
+                fontSize: "18px",
+                marginBottom: "25px",
+              }}
+            >
+              Available Stock: {item.available}
+            </p>
 
-                  <h2
-                    style={{
-                      fontSize: "32px",
-                      fontWeight: "800",
-                      color: "#0f172a",
-                    }}
-                  >
+            <button
+              onClick={() => reserveProduct(item.id)}
+              style={{
+                background: "#2563eb",
+                color: "white",
+                border: "none",
+                padding: "14px 24px",
+                borderRadius: "10px",
+                fontSize: "16px",
+                cursor: "pointer",
+                width: "100%",
+              }}
+            >
+              Reserve Product
+            </button>
 
-                    {item.product}
-
-                  </h2>
-
-                  <p
-                    style={{
-                      color: "#64748b",
-                      marginTop: "5px",
-                    }}
-                  >
-
-                    Smart Inventory Product
-
-                  </p>
-
-                </div>
-
-                <div
-                  style={{
-                    background: "#dcfce7",
-                    color: "#15803d",
-                    padding:
-                      "10px 18px",
-                    borderRadius: "50px",
-                    fontWeight: "bold",
-                  }}
-                >
-
-                  In Stock
-
-                </div>
-
-              </div>
-
-              <div
-                style={{
-                  background: "#f1f5f9",
-                  padding: "20px",
-                  borderRadius: "20px",
-                  marginBottom: "20px",
-                }}
-              >
-
-                <p
-                  style={{
-                    color: "#64748b",
-                    marginBottom: "8px",
-                  }}
-                >
-
-                  Warehouse
-
-                </p>
-
-                <h3
-                  style={{
-                    fontSize: "28px",
-                    fontWeight: "700",
-                    color: "#334155",
-                  }}
-                >
-
-                  {item.warehouse}
-
-                </h3>
-
-              </div>
-
-              <div
-                style={{
-                  background: "#dbeafe",
-                  padding: "20px",
-                  borderRadius: "20px",
-                  marginBottom: "30px",
-                }}
-              >
-
-                <p
-                  style={{
-                    color: "#2563eb",
-                    marginBottom: "8px",
-                  }}
-                >
-
-                  Available Stock
-
-                </p>
-
-                <h3
-                  style={{
-                    fontSize: "50px",
-                    fontWeight: "900",
-                    color: "#1d4ed8",
-                  }}
-                >
-
-                  {item.available}
-
-                </h3>
-
-              </div>
-
-              <button
-
-                onClick={() =>
-                  reserve(item)
-                }
-
-                style={{
-                  width: "100%",
-                  background:
-                    "linear-gradient(to right, #2563eb, #4f46e5)",
-                  color: "white",
-                  border: "none",
-                  padding: "18px",
-                  borderRadius: "20px",
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
-
-                Reserve Product
-
-              </button>
-
-            </div>
-          ))}
-
-        </div>
+          </div>
+        ))}
 
       </div>
 

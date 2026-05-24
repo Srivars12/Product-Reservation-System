@@ -1,214 +1,147 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
 
   const params = useParams();
   const router = useRouter();
 
-  const [reservation, setReservation] =
-    useState<any>(null);
-
-  const [timeLeft, setTimeLeft] =
-    useState("10:00");
-
-  const [message, setMessage] =
-    useState("");
+  const [timeLeft, setTimeLeft] = useState(300);
 
   useEffect(() => {
 
-    if (!params?.id) return;
+    const timer = setInterval(() => {
 
-    fetch(`/api/reservations/${params.id}`)
-      .then((res) => res.json())
-      .then((data) => {
+      setTimeLeft((prev) => {
 
-        setReservation(data);
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
 
-        const expiryTime =
-          new Date(data.expiresAt).getTime();
-
-        const updateTimer = () => {
-
-          const now =
-            new Date().getTime();
-
-          const difference =
-            expiryTime - now;
-
-          if (difference <= 0) {
-
-            setTimeLeft("00:00");
-
-            return;
-          }
-
-          const minutes =
-            Math.floor(
-              difference / 1000 / 60
-            );
-
-          const seconds =
-            Math.floor(
-              (difference / 1000) % 60
-            );
-
-          const formatted =
-            `${minutes
-              .toString()
-              .padStart(2, "0")}:${seconds
-              .toString()
-              .padStart(2, "0")}`;
-
-          setTimeLeft(formatted);
-        };
-
-        updateTimer();
-
-        const interval =
-          setInterval(updateTimer, 1000);
-
-        return () =>
-          clearInterval(interval);
+        return prev - 1;
       });
 
-  }, [params]);
+    }, 1000);
 
-  async function confirmPurchase() {
+    return () => clearInterval(timer);
 
-    const res = await fetch(
-      `/api/reservations/${params.id}/confirm`,
-      {
-        method: "POST",
-      }
-    );
+  }, []);
 
-    const data = await res.json();
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
 
-    if (res.status === 410) {
-
-      setMessage(
-        "Reservation Expired"
-      );
-
-      return;
-    }
-
-    setMessage(
-      "Purchase Confirmed Successfully"
-    );
-
-    setTimeout(() => {
-      router.push("/");
-    }, 2000);
+  function confirmPurchase() {
+    alert("Purchase Confirmed");
+    router.push("/");
   }
 
-  async function cancelReservation() {
-
-    await fetch(
-      `/api/reservations/${params.id}/release`,
-      {
-        method: "POST",
-      }
-    );
-
-    setMessage(
-      "Reservation Cancelled"
-    );
-
-    setTimeout(() => {
-      router.push("/");
-    }, 2000);
-  }
-
-  if (!reservation) {
-
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-100 to-gray-300">
-
-        <div className="bg-white p-10 rounded-3xl shadow-2xl">
-
-          <h1 className="text-4xl font-bold animate-pulse">
-            Loading...
-          </h1>
-
-        </div>
-
-      </div>
-    );
+  function cancelReservation() {
+    alert("Reservation Cancelled");
+    router.push("/");
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-gray-200 to-slate-300 flex justify-center items-center p-6">
 
-      <div className="bg-white w-full max-w-xl rounded-[30px] shadow-2xl p-10 border border-gray-200">
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f3f4f6",
+      }}
+    >
 
-        <h1 className="text-5xl font-extrabold text-center text-gray-800 mb-10">
-          Checkout
+      <div
+        style={{
+          background: "white",
+          padding: "40px",
+          borderRadius: "20px",
+          width: "500px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+        }}
+      >
+
+        <h1
+          style={{
+            fontSize: "38px",
+            marginBottom: "30px",
+            textAlign: "center",
+          }}
+        >
+          Checkout Reservation
         </h1>
 
-        {message && (
-          <div className="bg-blue-100 border border-blue-300 text-blue-700 p-4 rounded-2xl text-center font-semibold mb-8 shadow-sm">
-            {message}
-          </div>
-        )}
+        <div
+          style={{
+            background: "#fee2e2",
+            padding: "25px",
+            borderRadius: "15px",
+            textAlign: "center",
+            marginBottom: "30px",
+          }}
+        >
 
-        <div className="space-y-6">
+          <p
+            style={{
+              fontSize: "20px",
+              marginBottom: "10px",
+            }}
+          >
+            Reservation Timer
+          </p>
 
-          <div className="bg-gray-100 rounded-2xl p-5 shadow-sm">
-
-            <p className="text-gray-500 text-sm mb-2">
-              Reservation ID
-            </p>
-
-            <h2 className="text-3xl font-bold text-gray-800">
-              #{reservation.id}
-            </h2>
-
-          </div>
-
-          <div className="bg-gray-100 rounded-2xl p-5 shadow-sm">
-
-            <p className="text-gray-500 text-sm mb-2">
-              Reservation Status
-            </p>
-
-            <h2 className="text-2xl font-bold capitalize text-green-600">
-              {reservation.status}
-            </h2>
-
-          </div>
-
-          <div className="bg-red-100 rounded-3xl p-8 text-center shadow-inner border border-red-200">
-
-            <p className="text-red-500 text-xl mb-4 font-semibold">
-              Reservation Timer
-            </p>
-
-            <h1 className="text-7xl font-extrabold text-red-600 tracking-widest">
-              {timeLeft}
-            </h1>
-
-          </div>
+          <h2
+            style={{
+              fontSize: "50px",
+              color: "red",
+            }}
+          >
+            {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+          </h2>
 
         </div>
 
-        <div className="flex flex-col md:flex-row gap-5 mt-10">
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+          }}
+        >
 
           <button
             onClick={confirmPurchase}
-            className="flex-1 bg-green-600 hover:bg-green-700 transition-all duration-300 text-white py-4 rounded-2xl text-xl font-bold shadow-lg"
+            style={{
+              flex: 1,
+              background: "green",
+              color: "white",
+              border: "none",
+              padding: "15px",
+              borderRadius: "10px",
+              fontSize: "18px",
+              cursor: "pointer",
+            }}
           >
-            Confirm Purchase
+            Confirm
           </button>
 
           <button
             onClick={cancelReservation}
-            className="flex-1 bg-red-600 hover:bg-red-700 transition-all duration-300 text-white py-4 rounded-2xl text-xl font-bold shadow-lg"
+            style={{
+              flex: 1,
+              background: "red",
+              color: "white",
+              border: "none",
+              padding: "15px",
+              borderRadius: "10px",
+              fontSize: "18px",
+              cursor: "pointer",
+            }}
           >
-            Cancel Reservation
+            Cancel
           </button>
 
         </div>
